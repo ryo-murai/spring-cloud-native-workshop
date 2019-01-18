@@ -83,5 +83,40 @@
 * refreshも同様に `/actuator/refresh`とする
 
 
+### service-registry
+#### 最初に
+* git repository側に service-registryブランチを作成して、application.properties等ファイルを編集するという手順がチュートリアルに書いていない（後の方の手順で、「サービル論理名を使っていることに着目」って書いてる・・・）
 
+#### Eureka-Client
+* `membership`, `recommendations`, `ui`の pom.xml は use `spring-cloud-starter-netflix-eureka-client` instead of `spring-cloud-starter-eureka`
+
+#### Eureka-Server(上述ブランチ対応していれば問題ない)
+* tutorial設定だと、port=8080で起動しようとする
+* 自身がEureka-Clientとして http://localhost:8761/eureka に接続しようとして定期的にエラーログを出力する
+
+```txt
+com.netflix.discovery.shared.transport.TransportException: Cannot execute request on any known server
+	at com.netflix.discovery.shared.transport.decorator.RetryableEurekaHttpClient.execute(RetryableEurekaHttpClient.java:112) ~[eureka-client-1.9.8.jar:1.9.8]
+
+	以下略
+```
+
+* 公式Referenceを参考に、bootstrap.propertiesに以下の行を追加
+  - https://cloud.spring.io/spring-cloud-static/spring-cloud-netflix/2.1.0.RC3/single/spring-cloud-netflix.html#spring-cloud-eureka-server-standalone-mode
+
+```
+server.port=8761
+
+eureka.instance.hostname=localhost
+eureka.client.registerWithEureka=false
+eureka.client.fetchRegistry=false
+eureka.client.serviceUrl.defaultZone=http://${eureka.instance.hostname}:${server.port}/eureka/
+```
+
+* これにより、ブラウザで `http://localhost:8761/`にて、Eurekaの管理画面にアクセスできる
+
+
+* `#spring.cloud.config.label=service-registry`
+
+https://github.com/making/metflix/compare/02-config-server...03-service-registry
 
