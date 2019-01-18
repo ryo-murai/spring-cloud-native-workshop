@@ -120,3 +120,10 @@ eureka.client.serviceUrl.defaultZone=http://${eureka.instance.hostname}:${server
 
 https://github.com/making/metflix/compare/02-config-server...03-service-registry
 
+
+### circuit-breaker
+
+#### circuit-breaker client side
+* insetad of `spring-cloud-starter-hystrix`, use `spring-cloud-starter-netflix-hystrix`
+* stop recommendations cause 500 at ui ... even though stopping members cause fallback in recommendations.
+* got 404 in accessing to both http://localhost:3333/hystrix.stream and http://localhost:3333/actuator/hystrix.stream
