@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.RequestEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @SpringBootApplication
+@EnableDiscoveryClient
 public class RecommendationsApplication {
 
 	public static void main(String[] args) {
@@ -25,6 +28,7 @@ public class RecommendationsApplication {
 	}
 
 	@Bean
+	@LoadBalanced
 	RestTemplate restTemplate() {
 		return new RestTemplate();
 	}

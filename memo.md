@@ -84,11 +84,17 @@
 
 
 ### service-registry
-#### Eureka-Server
+#### 最初に
+* git repository側に service-registryブランチを作成して、application.properties等ファイルを編集するという手順がチュートリアルに書いていない（後の方の手順で、「サービル論理名を使っていることに着目」って書いてる・・・）
+
+#### Eureka-Client
+* `membership`, `recommendations`, `ui`の pom.xml は use `spring-cloud-starter-netflix-eureka-client` instead of `spring-cloud-starter-eureka`
+
+#### Eureka-Server(上述ブランチ対応していれば問題ない)
 * tutorial設定だと、port=8080で起動しようとする
 * 自身がEureka-Clientとして http://localhost:8761/eureka に接続しようとして定期的にエラーログを出力する
 
-```java
+```txt
 com.netflix.discovery.shared.transport.TransportException: Cannot execute request on any known server
 	at com.netflix.discovery.shared.transport.decorator.RetryableEurekaHttpClient.execute(RetryableEurekaHttpClient.java:112) ~[eureka-client-1.9.8.jar:1.9.8]
 
@@ -108,4 +114,9 @@ eureka.client.serviceUrl.defaultZone=http://${eureka.instance.hostname}:${server
 ```
 
 * これにより、ブラウザで `http://localhost:8761/`にて、Eurekaの管理画面にアクセスできる
+
+
+* `#spring.cloud.config.label=service-registry`
+
+https://github.com/making/metflix/compare/02-config-server...03-service-registry
 
