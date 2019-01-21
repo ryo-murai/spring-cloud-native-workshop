@@ -120,3 +120,18 @@ eureka.client.serviceUrl.defaultZone=http://${eureka.instance.hostname}:${server
 
 https://github.com/making/metflix/compare/02-config-server...03-service-registry
 
+
+### circuit-breaker
+
+#### circuit-breaker client side
+* insetad of `spring-cloud-starter-hystrix`, use `spring-cloud-starter-netflix-hystrix`
+* got 404 in accessing to both http://localhost:3333/hystrix.stream and http://localhost:3333/actuator/hystrix.stream
+  - add `management.endpoints.web.exposure.include=hystrix.stream,info,health` in application.properties(bootstrap.properties)
+    + なぜか`*`では有効化されない
+	+ なぜか `hystrix.stream`をカンマ区切りの最初に書かないと有効化されない（`info,health,hystrix.stream` では有効化されなかった)
+  - see https://github.com/spring-cloud/spring-cloud-netflix/issues/2785#issuecomment-413502848
+    + to enable hystrix.stream endpoint, confirm below three things
+	  * `@EnableCircuitBreaker` or `@EnableHystrix`
+	  * `management.endpoints.web.exposure.include=hystrix.stream` in application.properties(bootstrap.properties)
+	  * pom with `spring-cloud-starter-netflix-hystrix` dependency
+* チュートリアルに「`http://localhost:4444/hystrix.stream`も同様」とあるが、当該`membership`アプリではCircuitBreakerを使っていないので特にstreamも表示されない
