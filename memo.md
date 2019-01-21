@@ -135,3 +135,68 @@ https://github.com/making/metflix/compare/02-config-server...03-service-registry
 	  * `management.endpoints.web.exposure.include=hystrix.stream` in application.properties(bootstrap.properties)
 	  * pom with `spring-cloud-starter-netflix-hystrix` dependency
 * チュートリアルに「`http://localhost:4444/hystrix.stream`も同様」とあるが、当該`membership`アプリではCircuitBreakerを使っていないので特にstreamも表示されない
+
+
+### Distributed-Tracing
+
+#### zipkin-server
+* there is no `Zipkin UI`, `Zipkin Server` in create new project wizard in the STS
+  - manually add below lines in pom.xml
+
+	```xml
+		<properties>
+			<zipkin.version>2.12.0</zipkin.version>
+		</properties>
+	
+		<dependency>
+		    <groupId>io.zipkin.java</groupId>
+		    <artifactId>zipkin-server</artifactId>
+		    <version>${zipkin.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.zipkin.java</groupId>
+			<artifactId>zipkin-autoconfigure-ui</artifactId>
+		    <version>${zipkin.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+	```
+
+* in `ZipkinServerApplication.java`, `@EnableZipkinServer` is deprecated.
+
+* start zipkin-server failed with an error.
+
+```text
+LF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/C:/Users/murair/.m2/repository/org/apache/logging/log4j/log4j-slf4j-impl/2.11.1/log4j-slf4j-impl-2.11.1.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/C:/Users/murair/.m2/repository/ch/qos/logback/logback-classic/1.2.3/logback-classic-1.2.3.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.apache.logging.slf4j.Log4jLoggerFactory]
+Exception in thread "main" java.lang.StackOverflowError
+	at org.apache.logging.log4j.util.StackLocator.getCallerClass(StackLocator.java:110)
+	at org.apache.logging.log4j.util.StackLocator.getCallerClass(StackLocator.java:123)
+	at org.apache.logging.log4j.util.StackLocatorUtil.getCallerClass(StackLocatorUtil.java:55)
+	at org.apache.logging.slf4j.Log4jLoggerFactory.getContext(Log4jLoggerFactory.java:42)
+	at org.apache.logging.log4j.spi.AbstractLoggerAdapter.getLogger(AbstractLoggerAdapter.java:46)
+	at org.apache.logging.slf4j.Log4jLoggerFactory.getLogger(Log4jLoggerFactory.java:29)
+	at org.slf4j.LoggerFactory.getLogger(LoggerFactory.java:358)
+	at org.apache.logging.slf4j.SLF4JLoggerContext.getLogger(SLF4JLoggerContext.java:39)
+	at org.apache.logging.slf4j.Log4jLoggerFactory.newLogger(Log4jLoggerFactory.java:37)
+	at org.apache.logging.slf4j.Log4jLoggerFactory.newLogger(Log4jLoggerFactory.java:29)
+	at org.apache.logging.log4j.spi.AbstractLoggerAdapter.getLogger(AbstractLoggerAdapter.java:52)
+	at org.apache.logging.slf4j.Log4jLoggerFactory.getLogger(Log4jLoggerFactory.java:29)
+	at org.slf4j.LoggerFactory.getLogger(LoggerFactory.java:358)
+	at org.apache.logging.slf4j.SLF4JLoggerContext.getLogger(SLF4JLoggerContext.java:39)
+
+   ...... omit
+```
+
+* zipkinのDL版を使って `java -jar zipkin-server-2.12.0-exec.jar` でサーバ起動することにした。
+  - デフォルトで 9411 ポートが使われる
+  - この手順だと、たぶん Config用Gitサーバ上の `zipkin-server.properties`は不要
+
+#### zipkin-client
+* `ui`の`pom.xml`も修正する（Githubソースでは同じ修正をしているので、チュートリアルの手順抜けと思われ）
+* チュートリアルでは、`spring.sleuth.sampler.percentage=1.0` を追加することになっているが、`spring.sleuth.sampler.probability=1.0` にプロパティ名が変更されている
+
+#### CloudFoundry
+省略。よってMySql利用も省略
